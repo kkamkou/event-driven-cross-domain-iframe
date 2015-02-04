@@ -1,0 +1,78 @@
+<!-- http://2ka.by/article/event-driven-cross-domain-iframe -->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Mother</title>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+
+  <body style="padding: 20px;">
+    <h1>Mother</h1>
+
+    <div class="form-group">
+      <label for="iframe2url">iFrame 2 URL:</label>
+      <input type="url" id="iframe2url" value="">
+    </div>
+
+    <button class="btn btn-primary">Open Modal</button>
+
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script type="text/javascript">
+      var iframe2url = $('#iframe2url').val().trim();
+
+      function MyBridgeChannel(url) {
+        this.listener = $({});
+        this.url = url;
+      }
+
+      MyBridgeChannel.prototype.createInstance = function () {
+        var that = this;
+        return new easyXDM.Rpc(
+          {
+            remote: this.urn,
+            remoteHelper: iframe2url + '/name.html',
+            props: {
+              className: 'my-iframe',
+              style: {
+                outline: 'none',
+                top: 'auto',
+                left: 'auto',
+                position: 'static',
+                display: 'none',
+                padding: 0
+              }
+            },
+            onReady: function () {
+              alert('Channel ready');
+            }
+          },
+          {
+            event: function (id, data, cbSuccess, cbError) {
+              var args = [id, data, cbSuccess, cbError];
+              if (typeof data === 'function') {
+                args.pop();
+              }
+              that.listener.trigger('event', args);
+              return {result: true};
+            },
+            local: {
+              close: function (cbSuccess, cbError) {
+                that.listener.trigger('close', [cbSuccess, cbError]);
+                return {result: true};
+              }
+            }
+          }
+        );
+      };
+
+      MyBridgeChannel.prototype.on = function (id, cb) {
+        this.listener.on(id, function () {
+          cb.apply(this, Array.prototype.slice.call(arguments, 1));
+        });
+        return this;
+      };
+    </script>
+  </body>
+</html>
