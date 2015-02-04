@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Iframe 2</title>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+
+  <body style="padding: 20px;">
+    <h1>iFrame #2</h1>
+
+    <div class="well">
+      <button type="button" id="btn1" class="btn btn-default">Close Me</button>
+      <button type="button" id="btn2" class="btn btn-default">Send Event</button>
+    </div>
+
+    <script type="text/javascript">
+      document.getElementById('btn1').addEventListener('click', function() {
+        window.parent.bridge.close();
+      });
+      document.getElementById('btn2').addEventListener('click', function() {
+        window.parent.bridge.event('hello', {a: 3, b: 4, c: 5});
+      });
+    </script>
+  </body>
+</html>
