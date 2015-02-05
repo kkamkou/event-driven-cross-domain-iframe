@@ -5,74 +5,93 @@
   <head>
     <meta charset="utf-8" />
     <title>Mother</title>
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="jqFenster/jquery.fenster.full.css">
   </head>
 
   <body style="padding: 20px;">
     <h1>Mother</h1>
 
-    <div class="form-group">
-      <label for="iframe2url">iFrame 2 URL:</label>
-      <input type="url" id="iframe2url" value="">
+    <form>
+      <div class="form-group">
+        <label for="iframe2Url">iFrame 2 URL:</label>
+        <input type="url" class="form-control" id="iframe2Url" value="">
+      </div>
+
+      <div class="form-group">
+        <label for="iframe2Params">Params:</label>
+        <input type="text" class="form-control" id="iframe2Params" value="iframe2.html?key1=value1;key2=value2">
+      </div>
+
+      <button class="btn btn-primary" id="modalOpen">Open Modal</button>
+    </form>
+
+    <div id="modalWindow" class="jqFensterModal">
+      <div class="jqFensterModalContent">Loading...</div>
+      <a href="#" class="jqFensterClose jqFensterModalClose">×</a>
     </div>
 
-    <button class="btn btn-primary">Open Modal</button>
-
     <script type="text/javascript" src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script type="text/javascript" src="easyXDM/easyXDM.min.js"></script>
+    <script type="text/javascript" src="jqFenster/jquery.fenster.full.js"></script>
+    <script type="text/javascript" src="lib/my-bridge-channel.js"></script>
+    <script type="text/javascript" src="lib/fenster-helper.js"></script>
     <script type="text/javascript">
-      var iframe2url = $('#iframe2url').val().trim();
+      var bridge, channel, iframe2Url;
 
-      function MyBridgeChannel(url) {
-        this.listener = $({});
-        this.url = url;
-      }
+      $('#modalOpen').on('click', function () {
+        var that = this,
+          iframe2Url = $('#iframe2Url').val().trim(),
+          urn = iframe2Url + 'proxy.html?timestamp=' + (new Date()).getTime() + '&urn='
+            + encodeURIComponent($('#iframe2Params').val().trim());
 
-      MyBridgeChannel.prototype.createInstance = function () {
-        var that = this;
-        return new easyXDM.Rpc(
-          {
-            remote: this.urn,
-            remoteHelper: iframe2url + '/name.html',
-            props: {
-              className: 'my-iframe',
-              style: {
-                outline: 'none',
-                top: 'auto',
-                left: 'auto',
-                position: 'static',
-                display: 'none',
-                padding: 0
-              }
-            },
-            onReady: function () {
-              alert('Channel ready');
+        channel = new MyBridgeChannel(urn, iframe2Url);
+        channel
+          .on('resize', function (w, h) {
+            $('div.jqFensterModalContent iframe')
+              .animate({width: w, height: h + 20}, 'fast');
+          })
+          .on('close', function () {
+            alert('Mother: close()');
+            $.fensterFinder($('div.jqFensterHolder')).close();
+          })
+          .on('event', function (id, params) {
+            alert(
+              'Mother: event(' + id + '): '
+              + ['a', params.a, 'b', params.b, 'c', params.c].join(':')
+
+            );
+          });
+
+        $.fenster('#modalWindow').open();
+        return false;
+      });
+
+      $.extend(
+        $.jqFensterOptions,
+        {
+          callbackClose: function () {
+            if (bridge) {
+              bridge.destroy();
             }
           },
-          {
-            event: function (id, data, cbSuccess, cbError) {
-              var args = [id, data, cbSuccess, cbError];
-              if (typeof data === 'function') {
-                args.pop();
+          callbackOpen: function (ref) {
+            setTimeout(function () {
+              var $modal = $.fensterFinder(ref);
+              if (!$modal) {
+                return false;
               }
-              that.listener.trigger('event', args);
-              return {result: true};
-            },
-            local: {
-              close: function (cbSuccess, cbError) {
-                that.listener.trigger('close', [cbSuccess, cbError]);
-                return {result: true};
-              }
-            }
-          }
-        );
-      };
 
-      MyBridgeChannel.prototype.on = function (id, cb) {
-        this.listener.on(id, function () {
-          cb.apply(this, Array.prototype.slice.call(arguments, 1));
-        });
-        return this;
-      };
+              bridge = channel.createInstance();
+
+              $modal.getHolder()
+                .find('div.jqFensterModalContent')
+                .empty().append($('iframe[id^="easyXDM_"]').show());
+            }, 200);
+          }
+        }
+      );
+
     </script>
   </body>
 </html>

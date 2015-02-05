@@ -8,7 +8,7 @@
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
   </head>
 
-  <body style="padding: 20px;">
+  <body style="padding: 20px; height: 600px;">
     <h1>iFrame #2</h1>
 
     <div class="well">
@@ -16,12 +16,25 @@
       <button type="button" id="btn2" class="btn btn-default">Send Event</button>
     </div>
 
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.1.3.min.js"></script>
     <script type="text/javascript">
-      document.getElementById('btn1').addEventListener('click', function() {
+      $('body').width(800);
+
+      $('#btn1').on('click', function() {
         window.parent.bridge.close();
       });
-      document.getElementById('btn2').addEventListener('click', function() {
+      $('#btn2').on('click', function() {
         window.parent.bridge.event('hello', {a: 3, b: 4, c: 5});
+      });
+
+      $(function () {
+        var body = $('body');
+        setTimeout(function () { // the first timeout
+          window.parent.bridge.resize(body.width(), body.height());
+          setTimeout(function () { // the second timeout
+            window.parent.bridge.resize(body.width(), body.height());
+          }, 400);
+        }, 30);
       });
     </script>
   </body>
