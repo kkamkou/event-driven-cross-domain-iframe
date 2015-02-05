@@ -11,6 +11,7 @@
   <body style="padding: 20px; height: 600px;">
     <h1>iFrame #2</h1>
 
+    <div class="alert alert-info"></div>
     <div class="well">
       <button type="button" id="btn1" class="btn btn-default">Close Me</button>
       <button type="button" id="btn2" class="btn btn-default">Send Event</button>
@@ -28,6 +29,8 @@
       });
 
       $(function () {
+        $('.alert').text(window.location.href);
+
         var body = $('body');
         setTimeout(function () { // the first timeout
           window.parent.bridge.resize(body.width(), body.height());
