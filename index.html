@@ -25,7 +25,7 @@
 
       <button class="btn btn-primary" id="modalOpen">Open Modal</button>
     </form>
-    
+
     <br><br>
     * <a href="http://kkamkou.github.io/jqFenster/" target="_blank">jqFenster is used as the modal engine</a>
 
@@ -55,7 +55,7 @@
           })
           .on('close', function () {
             alert('Mother: close()');
-            $.fensterFinder($('div.jqFensterHolder')).close();
+            $.fensterFinder('#modalWindow').close();
           })
           .on('event', function (id, params) {
             alert(
