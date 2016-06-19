@@ -1,5 +1,6 @@
-# event-driven-cross-domain-iframe
-Event-driven cross-domain iFrame
+# Article
+[Event-driven cross-domain iFrame](http://2ka.by/article/event-driven-cross-domain-iframe)
+
 
 ## Examples
 - http://letscodeit.github.io/event-driven-cross-domain-iframe/
